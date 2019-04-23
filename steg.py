@@ -59,22 +59,33 @@ def retrieveData(wrapper, offset):
 	if(sys.argv[1] == "-B"):
 		#byte method
 		interval = getInterval()
+                
 
 		hiddenData = ""
 		found = False
 		#############NOTE: THIS IS NOT YET WORKING, CANNOT PROCESS SENTINEL PROPERLY
 		while (not found):
+                        
 			#hiddenData += (chr(0) + chr(255) + chr(0) + chr(0) + chr(255) + chr(0))
 			hiddenData += ((wrapper[offset]))
 			offset += interval
 			#print(hiddenData[-6:] + "\n")
+			
                         if(len(hiddenData) >= 6):
+                                
                                 for i in range(6):
-                                        print("{} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
+                                        if(i != 0):
+                                                print i
+
+                                        if(i == 3):
+                                                print("3: {} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
                                         if(ord(hiddenData[i-6]) != SENTINEL[i]):
                                                 break
                                         elif(i == 5):
                                                 found = True
+                                        if(i == 0):
+                                                print("\n")
+                                        print("{} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
 
 
 		print(hiddenData)
