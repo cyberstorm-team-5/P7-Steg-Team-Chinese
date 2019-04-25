@@ -24,7 +24,6 @@ GENERAL_USAGE = "General Usage: ./steg.py -(bB) -(sr) -o<val> [-i<val>] -w<val> 
 STORAGE_USAGE = "Store Data Usage: ./steg.py -(bB) -(sr) -o<val> [-i<val>] -w<val> -h<val>"
 
 #sentinel value for keeping track of where the data ends
-#SENTINEL = [chr(0),chr(255),chr(0),chr(0),chr(255),chr(0)] #chr(0) + chr(255) + chr(0) + chr(0) + chr(255) + chr(0)
 SENTINEL = [0,255,0,0,255,0]
 ################################################################################
 
@@ -59,36 +58,48 @@ def retrieveData(wrapper, offset):
 	if(sys.argv[1] == "-B"):
 		#byte method
 		interval = getInterval()
-                
 
+                #setup string to hold retrieved hidden bytes from the wrapper
 		hiddenData = ""
+		
 		found = False
-		#############NOTE: THIS IS NOT YET WORKING, CANNOT PROCESS SENTINEL PROPERLY
-		while (not found):
-                        
-			#hiddenData += (chr(0) + chr(255) + chr(0) + chr(0) + chr(255) + chr(0))
+		#continue to loop until the sentienl is found, or once the entire wrapper has been traversed
+		while (not found and len(wrapper) > offset):
+
 			hiddenData += ((wrapper[offset]))
 			offset += interval
 			#print(hiddenData[-6:] + "\n")
-			
-                        if(len(hiddenData) >= 6):
-                                
-                                for i in range(6):
-                                        if(i != 0):
-                                                print i
 
-                                        if(i == 3):
-                                                print("3: {} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
+			#only attempt to check for sentinel once enough data has been retrieved for it to possibly be there
+                        if(len(hiddenData) >= 6):
+
+                                #check to see if the seninel was found
+                                for i in range(6):
+                                        #if(i != 0):
+                                         #       print i
+
+                                        #if(i == 3):
+                                         #       print("3: {} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
+
+                                        
                                         if(ord(hiddenData[i-6]) != SENTINEL[i]):
                                                 break
+
+                                        #once all 6 pieces of the sentienl were found, remove them from the hidden data string and set found to true
                                         elif(i == 5):
+                                                hiddenData = hiddenData[:-6]
                                                 found = True
+                                                
                                         if(i == 0):
                                                 print("\n")
                                         print("{} != {}".format(ord(hiddenData[i-6]), SENTINEL[i]))
 
+                        #break out if the offset is as big as or bigger than the wrapper (no more bytes to look at)
+                        #if(len(wrapper) <= offset):
+                         #       break
 
-		print(hiddenData)
+
+		#print(hiddenData)
 
 	elif(sys.argv[1] == "-b"):
 		#bit method
@@ -160,6 +171,7 @@ def getOffset():
 #read in arguments from the command line, specifying proper usage if necessary
 if(len(sys.argv) < 5):
 	print(GENERAL_USAGE)
+	exit()
 
 #ensure wrapper file provided (needed regardless of method used)
 wrapper = getWrapper()
